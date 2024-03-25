@@ -6,7 +6,7 @@ from pyarrow import parquet as pq
 from catboost import CatBoostClassifier
 
 
-df = pq.read_table('artifacts/demo_data.pq').to_pandas() #1
+df = pq.read_table('artifacts/demo_data.pq').to_pandas()
 
 if 'patient_list' not in st.session_state:
     st.session_state.patient_list = set(df['patient_nbr'].sample(100))
@@ -16,33 +16,33 @@ if 'show_raw_data' not in st.session_state:
 
 st.title('Readmission Risk')
 
-st.set_option('deprecation.showPyplotGlobalUse', False) #2
+st.set_option('deprecation.showPyplotGlobalUse', False)
 
-option= st.selectbox('Select a patient ID', st.session_state.patient_list)
+option = st.selectbox('Select a patient ID', st.session_state.patient_list)
 
 
 def load_model():
-    model= CatBoostClassifier()
+    model = CatBoostClassifier()
     model.load_model('artifacts/scoring_model.cbm')
     
     return model
 
 
 def get_features(pt_id, model, age, df=df):
-    dataframe= df[df['patient_nbr'] == pt_id][model.feature_names_]
+    dataframe = df[df['patient_nbr'] == pt_id][model.feature_names_]
     dataframe['age'] = age
-    features = dataframe.to_dict(orient= 'records')[0]
-    score    = model.predict_proba(dataframe)[0][1]
+    features = dataframe.to_dict(orient='records')[0]
+    score = model.predict_proba(dataframe)[0][1]
     
     return features, score, dataframe
 
 
 def get_style(score):
     if score > 0.5:
-        text= f'<p style="font-family:Georgia; color:Red; font-size: 30px;"> % {str(np.round(score*100,2))}</p>' #3  
+        text= f'<p style="font-family:Georgia; color:Red; font-size: 30px;"> % {str(np.round(score*100,2))}</p>'
 
     else:
-        text= f'<p style="font-family:Georgia; color:Green; font-size: 30px;"> % {str(np.round(score*100,2))}</p>' #3        
+        text= f'<p style="font-family:Georgia; color:Green; font-size: 30px;"> % {str(np.round(score*100,2))}</p>'     
     
     return text
 
