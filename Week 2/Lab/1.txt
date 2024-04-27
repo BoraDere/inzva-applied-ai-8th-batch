@@ -1,0 +1,63 @@
+# Start with the specified Ubuntu version
+FROM ubuntu:22.04
+
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set the locale to avoid potential localization issues
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+
+# Install necessary packages to ensure that everything works well
+RUN apt-get update && apt-get install -y \
+        wget \
+        libssl-dev \
+        libffi-dev \
+        ca-certificates \
+        curl \
+        libtool \
+        vim \
+        htop && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Miniconda
+ENV PATH /opt/conda/bin:$PATH
+RUN wget --quiet "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh" -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /opt/conda && \
+    rm ~/miniconda.sh && \
+    /opt/conda/bin/conda clean -t -i -p -y
+
+# Create a new environment and install packages
+ENV ENV_NAME myenv
+RUN conda create -n $ENV_NAME python=3.9 -y && \
+    conda install -n $ENV_NAME -c conda-forge -y \
+        aim \
+		fastapi \
+        uvicorn \
+        pandas \
+        numpy \
+        jupyterlab \
+        catboost \
+        shap \
+        seaborn \
+        matplotlib \
+        scikit-learn \
+        pyarrow \
+        ipywidgets \
+        gunicorn \
+        schedule && \
+    conda clean --all -f -y
+
+ENV PATH /opt/conda/envs/$ENV_NAME/bin:$PATH
+
+# Set the working directory to /service
+WORKDIR /service
+
+# Copy the current directory contents into the container at /service
+COPY . /service/
+
+# Make ports 8888, 5000, and 8000 available to the world outside this container
+EXPOSE 8888 5000 8000
+
+# Default command to run on container start
+CMD ["/bin/bash"]

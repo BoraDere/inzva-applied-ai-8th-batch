@@ -1,0 +1,6 @@
+**Questions**
+1- Modify the development dockerfile to create a conda environment inside it and install some of the python packages by using conda.
+2- Modify the development dockerfile to create a new os user inside it else than root.
+3- Change the base image from ubuntu to some light python image
+4- Add a feature to aimstack class to get feature names from the model like in the hyperparameters.
+5- Create a deployment dockerfile for the streamlit api we created in Week 1. Use only the required libraries in the dockerfile.

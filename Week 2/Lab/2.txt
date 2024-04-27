@@ -1,0 +1,67 @@
+# Start with the specified Ubuntu version
+FROM ubuntu:22.04
+
+# Avoid warnings by switching to noninteractive
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Set the locale to avoid potential localization issues
+ENV LANG=C.UTF-8 LC_ALL=C.UTF-8
+
+# Install Python and pip, along with the necessary packages to ensure
+RUN apt-get update && apt-get install -y \
+        python3-pip \
+        python3-dev \
+        build-essential \
+        libssl-dev \
+        libffi-dev \
+        python3-setuptools \
+        ca-certificates \
+        curl \
+        libtool \
+        vim \
+        htop && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Upgrade pip to its latest version
+RUN python3 -m pip install --upgrade pip
+
+# Install Python dependencies using pip
+RUN pip install \
+		aim \
+        fastapi \
+        uvicorn \
+        pandas \
+        numpy \
+        jupyterlab \
+        catboost \
+        shap \
+        seaborn \
+        matplotlib \
+        scikit-learn \
+        pyarrow \
+        ipywidgets \
+        gunicorn \
+        schedule
+
+# Create a new user "appuser" with a home directory /home/appuser
+RUN useradd -m appuser
+
+# Set the working directory to /service
+WORKDIR /service
+
+# Change the ownership of the /service directory to the new user
+RUN chown -R appuser:appuser /service
+
+# Copy the current directory contents into the container at /service
+# Ensure this copy is done after changing ownership to avoid file permission issues
+COPY . /service/
+
+# Make ports 8888, 5000, and 8000 available to the world outside this container
+EXPOSE 8888 5000 8000
+
+# Switch to the new user for any subsequent RUN, CMD, or ENTRYPOINT instructions
+USER appuser
+
+# Default command to run on container start
+CMD ["/bin/bash"]
